@@ -3,6 +3,7 @@ const fs = require("fs");
 const axios = require("axios");
 const moment = require("moment");
 const Spotify = require("node-spotify-api");
+const NodeGeocoder = require("node-geocoder");
 
 require("dotenv").config();
 
@@ -10,6 +11,14 @@ require("dotenv").config();
 var keys = require("./keys.js");
 //spotify cnx
 var spotify = new Spotify(keys.spotify);
+
+var options = {
+  provider: "mapquest",
+  apiKey: process.env.MAPQUEST_KEY,
+};
+
+// Create a geocoder object that can query the mapquest API
+const geocoder = NodeGeocoder(options);
 
 //getting the command line inputs 
 const command = process.argv[2];
@@ -21,7 +30,7 @@ var mode = "utf8";
 
 //function log();
 const log = () => {
-  const logline = (moment().format("dddd, MMMM Do YYYY, h:mm:ss a")) + " - " + command + " - " + userInput;  
+  const logline = (moment().format("dddd, MMMM Do YYYY, h:mm:ss a")) + " - " + command + " - " + userInput;
   fs.appendFile("log.txt", `${logline} \n`, (error) => {
     if (error) {
       console.log(`Error log file: ${error}`)
@@ -40,19 +49,45 @@ const concertThis = (input) => {
     }) => {
       //loop to display events
       data.forEach(data => {
-        console.log("🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺");
-        console.log(`Venue name: ${data.venue.name}`);
-        const city = data.venue.city;
+
+        /* const city = data.venue.city;
         const region = data.venue.region;
-        const country = data.venue.country;
+        const country = data.venue.country; */
+        let address = "";
+        let city = "";
+        let state = "";
+        let country = data.venue.country;
         // we will use latitude and longitude to build a query for Geocode
         const latitude = data.venue.latitude;
         const longitude = data.venue.longitude;
+        //var location to store the result from geocoder
+        
+        geocoder.reverse({
+            lat: latitude,
+            lon: longitude
+          })
+          .then((location) => {
+            //console.log(location);
 
-        console.log(`Venue location: ${city} ,${region},${country}`);
-        const dateFormatted = moment(data.datetime).format("MM/DD/YYYY");
-        console.log(`Venue name: ${dateFormatted}`);
-        console.log("🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺");
+            //console.log(location[0]["streetName"]);
+
+            console.log("🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺");
+            console.log(`Venue name: ${data.venue.name}`);
+            address = location[0]["streetName"];
+            city = location[0]["city"];
+            state = location[0]["zipcode"];
+            console.log(`Venue Address: ${address}`);
+            console.log(`Venue location: ${city} , ${state}, ${country}`);           
+            const dateFormatted = moment(data.datetime).format("MM/DD/YYYY");
+            console.log(`Venue name: ${dateFormatted}`);
+            console.log("🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺");
+
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+
+
       });
     });
   //write in log.txt
@@ -119,7 +154,7 @@ const movieThis = (input) => {
         console.log(`Release Date: ${data.Year}`);
         console.log(`IMBD Ratings: ${data.Ratings[0].Value}`);
 
-        const rottenRatings = (data.Ratings[1].Value) ? data.Ratings[1].Value : "Not available!";
+        const rottenRatings = (data.Ratings[1]) ? data.Ratings[1].Value : "Not available!";
 
         console.log(`Rotten Tomatoes Ratings: ${rottenRatings}`);
         console.log(`Country : ${data.Country}`);
@@ -130,7 +165,7 @@ const movieThis = (input) => {
       }
     })
     .catch((err) => console.log(err));
-    //write in the log
+  //write in the log
   log();
 
 }
@@ -138,27 +173,27 @@ const movieThis = (input) => {
 const doWhatItSays = () => {
   fs.readFile(fileName, mode, (error, data) => {
     if (error) {
-      return console.log(`Error reading file: ${error}`)
+      return console.log(`Error reading file: ${error}`);
     }
     //slipt data in the file
     var dataSplit = data.split(':');
 
-    //display dataSplit
-    console.log(dataSplit);
-    const todo =  dataSplit[0].trim();
+    //get the content of datasplit 
+    const todo = dataSplit[0].trim();
     const todoInput = dataSplit[1].trim();
 
-    console.log(todo);
-    console.log(todoInput);
+    console.log(`Command to run: ${todo}`);
+    console.log(`Argument found in file: ${todoInput}`);
     //then swith case
     switch (todo) {
       case "concert-this":
         return concertThis(todoInput);
 
-      case "spotify-this-song":{
-        console.log('here');
-        return spotifyThisSong(todoInput);
-      }
+      case "spotify-this-song":
+        {
+          console.log('here');
+          return spotifyThisSong(todoInput);
+        }
       case "movie-this":
         return movieThis(todoInput);
     }
@@ -168,7 +203,6 @@ const doWhatItSays = () => {
 }
 
 //core of the app
-
 switch (command) {
   case "concert-this":
     return concertThis(userInput);
