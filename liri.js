@@ -21,8 +21,7 @@ var mode = "utf8";
 
 //function log();
 const log = () => {
-  const logline = (moment().format("dddd, MMMM Do YYYY, h:mm:ss a")) + " - " + command + " - " + userInput;
-  
+  const logline = (moment().format("dddd, MMMM Do YYYY, h:mm:ss a")) + " - " + command + " - " + userInput;  
   fs.appendFile("log.txt", `${logline} \n`, (error) => {
     if (error) {
       console.log(`Error log file: ${error}`)
@@ -127,11 +126,11 @@ const movieThis = (input) => {
         console.log(`Language : ${data.Language}`);
         console.log(`Movie Plot : ${data.Plot}`);
         console.log(`Actors : ${data.Actors}`);
-        console.log("🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥");
+        console.log("🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥");
       }
     })
     .catch((err) => console.log(err));
-
+    //write in the log
   log();
 
 }
@@ -146,22 +145,22 @@ const doWhatItSays = () => {
 
     //display dataSplit
     console.log(dataSplit);
-    const command =  dataSplit[0];
-    const input = dataSplit[1];
+    const todo =  dataSplit[0].trim();
+    const todoInput = dataSplit[1].trim();
 
-    console.log(command);
-    console.log(input);
+    console.log(todo);
+    console.log(todoInput);
     //then swith case
-    switch (command) {
+    switch (todo) {
       case "concert-this":
-        return concertThis(input);
+        return concertThis(todoInput);
 
-      case "spotify-this-song":
+      case "spotify-this-song":{
         console.log('here');
-        return spotifyThisSong(input);
-
+        return spotifyThisSong(todoInput);
+      }
       case "movie-this":
-        return movieThis(input);
+        return movieThis(todoInput);
     }
     //write in the log
     log();
