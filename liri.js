@@ -12,19 +12,20 @@ var keys = require("./keys.js");
 //spotify cnx
 var spotify = new Spotify(keys.spotify);
 
+//building MAPQuest infos
 var options = {
   provider: "mapquest",
   apiKey: process.env.MAPQUEST_KEY,
 };
 
-// Create a geocoder object that can query the mapquest API
+// geocoder object to can query the mapquest API
 const geocoder = NodeGeocoder(options);
 
 //getting the command line inputs 
 const command = process.argv[2];
 const userInput = process.argv.splice(3, process.argv.length).join("+");
 
-//random.txt name 
+//random.txt name easy to access tru filename in case we dealing with not static file.
 var fileName = "random.txt";
 var mode = "utf8";
 
@@ -33,15 +34,17 @@ const log = () => {
   const logline = (moment().format("dddd, MMMM Do YYYY, h:mm:ss a")) + " - " + command + " - " + userInput;
   fs.appendFile("log.txt", `${logline} \n`, (error) => {
     if (error) {
-      console.log(`Error log file: ${error}`)
+      console.log(`Error log file: ${error}`);
     }
   });
 }
 
 //function concert-this
-const concertThis = (input) => {
-  const concertquery = "https://rest.bandsintown.com/artists/" + input + "/events?app_id=codingbootcamp";
-  console.log(concertquery);
+const concertThis = (input) => {  
+  //check if the function was called with an argument
+  let search=(input)?input:"Passenger";
+  const concertquery = "https://rest.bandsintown.com/artists/" + search + "/events?app_id=codingbootcamp";
+  //console.log(concertquery);
   axios
     .get(concertquery)
     .then(({
@@ -53,6 +56,7 @@ const concertThis = (input) => {
         /* const city = data.venue.city;
         const region = data.venue.region;
         const country = data.venue.country; */
+       
         let address = "";
         let city = "";
         let state = "";
@@ -68,19 +72,24 @@ const concertThis = (input) => {
           })
           .then((location) => {
             //console.log(location);
-
             //console.log(location[0]["streetName"]);
-
-            console.log("🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺");
-            console.log(`Venue name: ${data.venue.name}`);
+            //console.log(`c: ${data.venue.city}|| r: ${data.venue.region}||c: ${data.venue.country}|| `);
+            //get the value out of $location
             address = location[0]["streetName"];
             city = location[0]["city"];
-            state = location[0]["zipcode"];
-            console.log(`Venue Address: ${address}`);
-            console.log(`Venue location: ${city} , ${state}, ${country}`);           
+            state = (location[0]["zipcode"]!=="")?location[0]["zipcode"]:"-";
+
+            //display infos
+            console.log("🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺");
+            console.log(`Venue name: ${data.venue.name}`);
+            
+            console.log(`Venue address: ${address},
+               ${city}, ${state}, ${country}`);
+
+            //console.log(`Venue location: ${city} , ${state}, ${country}`);           
             const dateFormatted = moment(data.datetime).format("MM/DD/YYYY");
-            console.log(`Venue name: ${dateFormatted}`);
-            console.log("🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺");
+            console.log(`Concert date: ${dateFormatted}`);
+            console.log("🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺");
 
           })
           .catch((err) => {
@@ -95,12 +104,14 @@ const concertThis = (input) => {
 }
 //function spotify this song
 const spotifyThisSong = (input) => {
-  console.log(input);
+  //check if the function was called with an argument
+  let search=(input)?input:"The+Sign";
+  console.log(search);
   //
   spotify
     .search({
       type: 'track',
-      query: input
+      query: search
     })
     .then(({
       tracks: {
@@ -109,7 +120,7 @@ const spotifyThisSong = (input) => {
     }) => { //destruturing at the two levels down
       //console.log(items);
       items.forEach(item => {
-        //in case of multiple artists 
+        //in case of multiple artists feat
         var artists = "";
         var artistsNumber = Object.keys(item.artists).length;
 
@@ -122,7 +133,7 @@ const spotifyThisSong = (input) => {
             artists += item.artists[key].name;
           }
         }
-        console.log("♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪")
+        console.log("♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪♪");
         console.log(`Song title: ${item.name} `);
         console.log(`Artist(s) Number: ${artistsNumber}`);
         console.log(`Artist(s): ${artists}`);
@@ -139,7 +150,9 @@ const spotifyThisSong = (input) => {
 }
 //function movie-this
 const movieThis = (input) => {
-  const moviequery = "http://www.omdbapi.com/?t=" + input + "&y=&plot=short&apikey=5fe6525f";
+  //check if the function was called with an argument
+  let search=(input)?input:"Mr+Nobody";
+  const moviequery = "http://www.omdbapi.com/?t=" + search + "&y=&plot=short&apikey=5fe6525f";
   //console.log(queryUrl);
   axios
     .get(moviequery)
@@ -161,7 +174,7 @@ const movieThis = (input) => {
         console.log(`Language : ${data.Language}`);
         console.log(`Movie Plot : ${data.Plot}`);
         console.log(`Actors : ${data.Actors}`);
-        console.log("🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥");
+        console.log("🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥🎥");
       }
     })
     .catch((err) => console.log(err));
@@ -179,7 +192,7 @@ const doWhatItSays = () => {
     var dataSplit = data.split(':');
 
     //get the content of datasplit 
-    const todo = dataSplit[0].trim();
+    const todo = dataSplit[0].trim(); 
     const todoInput = dataSplit[1].trim();
 
     console.log(`Command to run: ${todo}`);
@@ -190,10 +203,8 @@ const doWhatItSays = () => {
         return concertThis(todoInput);
 
       case "spotify-this-song":
-        {
-          console.log('here');
-          return spotifyThisSong(todoInput);
-        }
+        return spotifyThisSong(todoInput);
+        
       case "movie-this":
         return movieThis(todoInput);
     }
