@@ -3,6 +3,8 @@ LIRI Bot homework
 Screenshoots:
 1. ![Image 1](/screenshot1.JPG)
 2. ![Image 2](/screenshot2.JPG)
+
+
 ---Screenshots fully working app---
 3. ![Image 3](/concert-this.JPG)
 4. ![Image 4](/spotify-this-song.JPG)
