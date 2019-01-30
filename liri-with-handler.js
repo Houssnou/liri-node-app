@@ -40,23 +40,23 @@ const log = () => {
 }
 
 //function concert-this
-const concertThis = async (input) => {
+const concertThis = (input) => {  
   //check if the function was called with an argument
-  let search = (input) ? input : "Passenger";
+  let search=(input)?input:"Passenger";
   const concertquery = "https://rest.bandsintown.com/artists/" + search + "/events?app_id=codingbootcamp";
-
   //console.log(concertquery);
   axios
     .get(concertquery)
-    .then(async ({
+    .then(({
       data
     }) => {
       //loop to display events
       data.forEach(data => {
+
         /* const city = data.venue.city;
         const region = data.venue.region;
         const country = data.venue.country; */
-
+       
         let address = "";
         let city = "";
         let state = "";
@@ -65,56 +65,47 @@ const concertThis = async (input) => {
         const latitude = data.venue.latitude;
         const longitude = data.venue.longitude;
         //var location to store the result from geocoder
-        let location;
-        // for handling async promises
-        const promiseHandler = promise => promise
-          .then(res => [null, res])
-          .catch(err => [err, null]);
-
-        const geotest = async () => {
-          const [err, result] = await promiseHandler(geocoder.reverse({
+        
+        geocoder.reverse({
             lat: latitude,
             lon: longitude
-          }))
+          })
+          .then((location) => {
+            //console.log(location);
+            //console.log(location[0]["streetName"]);
+            //console.log(`c: ${data.venue.city}|| r: ${data.venue.region}||c: ${data.venue.country}|| `);
+            //get the value out of $location
+            address = location[0]["streetName"];
+            city = location[0]["city"];
+            state = (location[0]["zipcode"]!=="")?location[0]["zipcode"]:"-";
 
-          if (err) {
-            return console.log(err);
-          }
-         /*  console.log("--------");
-          console.log(result); //
-          console.log("--------"); */
-          location = result[0];
-          // handling the value returned by the async function
-        address = location["streetName"];
-        city = location["city"];
-        state = (location["zipcode"] !== "") ? location["zipcode"] : "-";
+            //display infos
+            console.log("🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺");
+            console.log(`Venue name: ${data.venue.name}`);
+            
+            console.log(`Venue address: ${address},
+               ${city}, ${state}, ${country}`);
 
-        //display infos
-        console.log("🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺");
-        console.log(`Venue name: ${data.venue.name}`);
+            //console.log(`Venue location: ${city} , ${state}, ${country}`);           
+            const dateFormatted = moment(data.datetime).format("MM/DD/YYYY");
+            console.log(`Concert date: ${dateFormatted}`);
+            console.log("🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺");
 
-        console.log(`Venue address: ${address},
-            ${city}, ${state}, ${country}`);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
 
-        //console.log(`Venue location: ${city} , ${state}, ${country}`);           
-        const dateFormatted = moment(data.datetime).format("MM/DD/YYYY");
-        console.log(`Concert date: ${dateFormatted}`);
-        console.log("🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺");
-        }
-        //run then the function that would return the location for us.
-          geotest();
-        
-        
 
       });
-    }).catch((err) => console.log(err));
+    });
   //write in log.txt
   log();
 }
 //function spotify this song
 const spotifyThisSong = (input) => {
   //check if the function was called with an argument
-  let search = (input) ? input : "The+Sign";
+  let search=(input)?input:"The+Sign";
   console.log(search);
   //
   spotify
@@ -160,7 +151,7 @@ const spotifyThisSong = (input) => {
 //function movie-this
 const movieThis = (input) => {
   //check if the function was called with an argument
-  let search = (input) ? input : "Mr+Nobody";
+  let search=(input)?input:"Mr+Nobody";
   const moviequery = "http://www.omdbapi.com/?t=" + search + "&y=&plot=short&apikey=5fe6525f";
   //console.log(queryUrl);
   axios
@@ -201,7 +192,7 @@ const doWhatItSays = () => {
     var dataSplit = data.split(':');
 
     //get the content of datasplit 
-    const todo = dataSplit[0].trim();
+    const todo = dataSplit[0].trim(); 
     const todoInput = dataSplit[1].trim();
 
     console.log(`Command to run: ${todo}`);
@@ -213,7 +204,7 @@ const doWhatItSays = () => {
 
       case "spotify-this-song":
         return spotifyThisSong(todoInput);
-
+        
       case "movie-this":
         return movieThis(todoInput);
     }
